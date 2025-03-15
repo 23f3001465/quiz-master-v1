@@ -6,7 +6,7 @@ class User(db.Model):
     __tablename__ = 'user'
     user_id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(20), unique=True, nullable=False)
-    password = db.Column(db.String(100), nullable=False)  # Increased length for hashed passwords
+    password = db.Column(db.String(100), nullable=False)  
     full_name = db.Column(db.String(30), nullable=False)
     qualification = db.Column(db.String(20), nullable=False)
     dob = db.Column(db.Date, nullable=False)
@@ -51,7 +51,7 @@ class Question(db.Model):
     option2 = db.Column(db.String(50), nullable=False)
     option3 = db.Column(db.String(50), nullable=False)
     option4 = db.Column(db.String(50), nullable=False)
-    correct_option = db.Column(db.Integer, nullable=False)  # 1, 2, 3, or 4
+    correct_option = db.Column(db.Integer, nullable=False)  
     quiz_id = db.Column(db.Integer, db.ForeignKey('quiz.quiz_id'), nullable=False)
     time_duration = db.Column(db.Time, nullable=True)
     remarks = db.Column(db.String(40))

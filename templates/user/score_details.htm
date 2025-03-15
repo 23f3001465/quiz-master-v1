@@ -1,4 +1,3 @@
-<!-- user/score_details.html -->
 {% extends "ubase.htm" %}
 {% block title %}Score Details{% endblock %}
 
@@ -101,11 +100,9 @@ Individual correct/incorrect answers are not shown in this view.
 
 {% block scripts %}
 <script>
-// Create score visualization
 document.addEventListener('DOMContentLoaded', function() {
 const ctx = document.getElementById('resultChart').getContext('2d');
 
-// Calculate correct and incorrect answers
 const totalQuestions = { questions,length };
 const correctAnswers = { score,total_scored };  
 const incorrectAnswers = totalQuestions - correctAnswers;

@@ -9,6 +9,8 @@ from sqlalchemy import extract, func
 from app import app
 from models.model import *
 
+
+
 @app.route('/')
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -22,7 +24,7 @@ def register():
         phone = request.form.get('phone')
         address = request.form.get('address')
         
-        existing_user = db.User.query.filter((User.username == username) | (User.email == email)).first()
+        existing_user = User.query.filter((User.username == username) | (User.email == email)).first()
         if existing_user:
             if existing_user.username == username:
                 flash('Username already exists. Please choose a different one.', 'danger')

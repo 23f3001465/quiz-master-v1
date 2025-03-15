@@ -98,7 +98,7 @@
     </div>
 </div>
     <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4>Quizzes for {{ chapter.name }}</h4>
+        
         <a href="{{ url_for('add_quiz') }}" class="btn btn-primary">
             + New Quiz
         </a>
@@ -111,13 +111,10 @@
 {% block scripts %}
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        // Find all radio buttons (answer choices)
         document.querySelectorAll("input[type=radio]").forEach((radio) => {
             radio.addEventListener("change", function() {
-                let questionId = this.name;  // The question's ID
-                let selectedOption = this.value;  // The chosen answer
-                
-                // Store the answer in session via AJAX request
+                let questionId = this.name; 
+                let selectedOption = this.value;  
                 fetch('/save_answer', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -126,14 +123,13 @@
             });
         });
     
-        // Delay form submission to ensure the last answer is saved
         document.querySelectorAll("button[type=submit]").forEach((button) => {
             button.addEventListener("click", function(event) {
-                event.preventDefault();  // Stop form from submitting immediately
+                event.preventDefault();  
     
                 setTimeout(() => {
-                    this.closest("form").submit();  // Submit the form after a short delay
-                }, 500);  // 500ms delay to ensure last answer is saved
+                    this.closest("form").submit();  
+                }, 500);  
             });
         });
     });

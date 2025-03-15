@@ -1,4 +1,3 @@
-<!-- user/profile.html -->
 {% extends "ubase.htm" %}
 {% block title %}My Profile{% endblock %}
 
@@ -73,7 +72,6 @@
 </div>
 </div>
 
-<!-- Change Password Modal -->
 <div class="modal fade" id="changePasswordModal" tabindex="-1" aria-hidden="true">
 <div class="modal-dialog">
 <div class="modal-content">
@@ -109,10 +107,8 @@
 {% block scripts %}
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-// Performance chart (dummy data, would be fetched from backend)
 const performanceCtx = document.getElementById('performanceChart').getContext('2d');
 
-// Fetch performance data
 fetch('/api/user/performance')
 .then(response => response.json())
 .then(data => {
@@ -145,7 +141,6 @@ document.querySelector('.card-body').innerHTML =
 '<div class="alert alert-danger">Error loading performance data.</div>';
 });
 
-// Change password functionality
 document.getElementById('savePasswordBtn').addEventListener('click', function() {
 const currentPassword = document.getElementById('currentPassword').value;
 const newPassword = document.getElementById('newPassword').value;
@@ -156,7 +151,6 @@ alert('New passwords do not match!');
 return;
 }
 
-// Send change password request
 fetch('/api/user/change-password', {
 method: 'POST',
 headers: {

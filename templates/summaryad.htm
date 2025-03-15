@@ -104,7 +104,6 @@
     document.addEventListener("DOMContentLoaded", function() {
         let ctx = document.getElementById('quizScoreChart').getContext('2d');
 
-        // Convert Jinja variables into valid JavaScript arrays
         let quizNames = JSON.parse('{{ quiz_names | tojson | safe }}');
         let avgScores = JSON.parse('{{ avg_scores | tojson | safe }}');
 
