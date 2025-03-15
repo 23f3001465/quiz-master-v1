@@ -23,7 +23,7 @@ def create_app():
 
 
 app= create_app     
-from application.controllers import *
+from controllers.controller import *
 
 
 if __name__=="__main__":
