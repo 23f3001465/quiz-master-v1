@@ -1,0 +1,164 @@
+{% extends 'base.htm' %}
+
+{% block title %}Search Results{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Search</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item active">Search</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Search</h5>
+                </div>
+                <div class="card-body">
+                    <form method="GET" action="{{ url_for('search') }}">
+                        <div class="row g-3">
+                            <div class="col-md-7">
+                                <input type="text" class="form-control" name="query" placeholder="Search..." value="{{ query }}">
+                            </div>
+                            <div class="col-md-3">
+                                <select class="form-control" name="category">
+                                    <option value="all" {% if category == 'all' %}selected{% endif %}>All Categories</option>
+                                    <option value="users" {% if category == 'users' %}selected{% endif %}>Users</option>
+                                    <option value="subjects" {% if category == 'subjects' %}selected{% endif %}>Subjects</option>
+                                    <option value="quizzes" {% if category == 'quizzes' %}selected{% endif %}>Quizzes</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="submit" class="btn btn-primary w-100">Search</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {% if results %}
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Search Results for "{{ query }}"</h5>
+                </div>
+                <div class="card-body">
+                    {% if 'users' in results and results['users'] %}
+                    <h5 class="mt-3">Users</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Username</th>
+                                    <th>Full Name</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for user in results['users'] %}
+                                <tr>
+                                    <td>{{ user.username }}</td>
+                                    <td>{{ user.full_name }}</td>
+                                    <td>{{ user.email }}</td>
+                                    <td>
+                                        <span class="badge {% if user.status == 'active' %}bg-success{% else %}bg-danger{% endif %}">
+                                            {{ user.status }}
+                                        </span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if 'subjects' in results and results['subjects'] %}
+                    <h5 class="mt-4">Subjects</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Description</th>
+                                    <th>Chapters</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for subject in results['subjects'] %}
+                                <tr>
+                                    <td>{{ subject.name }}</td>
+                                    <td>{{ subject.description }}</td>
+                                    <td>{{ subject.chapters|length }}</td>
+                                    <td>
+                                        <a href="{{ url_for('chapters', subject_id=subject.subject_id) }}" class="btn btn-sm btn-info">Chapters</a>
+                                        <a href="{{ url_for('edit_subject', subject_id=subject.subject_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if 'quizzes' in results and results['quizzes'] %}
+                    <h5 class="mt-4">Quizzes</h5>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Chapter</th>
+                                    <th>Subject</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in results['quizzes'] %}
+                                <tr>
+                                    <td>{{ quiz.name }}</td>
+                                    <td>{{ quiz.chapter.chapter_name }}</td>
+                                    <td>{{ quiz.chapter.subject.name }}</td>
+                                    <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</td>
+                                    <td>
+                                        <a href="{{ url_for('questions', quiz_id=quiz.quiz_id) }}" class="btn btn-sm btn-info">Questions</a>
+                                        <a href="{{ url_for('edit_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% endif %}
+
+                    {% if (('users' not in results or not results['users']) and 
+                           ('subjects' not in results or not results['subjects']) and 
+                           ('quizzes' not in results or not results['quizzes'])) %}
+                        <div class="alert alert-info">No results found for "{{ query }}"</div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    {% elif query %}
+    <div class="row">
+        <div class="col">
+            <div class="alert alert-info">No results found for "{{ query }}"</div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,78 @@
+
+<!-- user/scores.html -->
+{% extends "ubase.htm" %}
+{% block title %}My Scores{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-12">
+<div class="d-flex justify-content-between align-items-center mb-4">
+<h1>My Scores</h1>
+</div>
+</div>
+</div>
+
+<div class="row">
+<div class="col-12">
+<div class="card">
+<div class="card-header bg-primary text-white">
+<h5 class="mb-0">Quiz Attempts History</h5>
+</div>
+<div class="card-body">
+{% if scores %}
+<div class="table-responsive">
+<table class="table table-hover">
+<thead>
+<tr>
+<th>Quiz ID</th>
+<th>Quiz Name</th>
+<th>Subject</th>
+<th>Date Attempted</th>
+<th>Time Taken</th>
+<th>Score</th>
+<th>Percentage</th>
+<th>Actions</th>
+</tr>
+</thead>
+<tbody>
+{% for item in scores %}
+<tr>
+<td>{{ item.quiz.quiz_id }}</td>
+<td>{{ item.quiz.name }}</td>
+<td>{{ item.subject_name }}</td>
+<td>{{ item.score.timestamp_date_of_attempt.strftime('%d-%m-%Y') }}</td>
+<td>{{ item.score.time_taken.strftime('%H:%M:%S') }}</td>
+<td>{{ item.score.total_scored }}/{{ item.question_count }}</td>
+<td>
+    <div class="progress" style="height: 20px;">
+        <div class="progress-bar bg-{{ 'success' if item.percentage >= 70 else ('warning' if item.percentage >= 40 else 'danger') }}" 
+             role="progressbar" 
+             style="width: {{ item.percentage }}%;" 
+             aria-valuenow="{{ item.percentage }}" 
+             aria-valuemin="0" 
+             aria-valuemax="100">
+            {{ "%.1f"|format(item.percentage) }}%
+        </div>
+    </div>
+</td>
+<td>
+    <a href="{{ url_for('score_details', score_id=item.score.score_id) }}" class="btn btn-sm btn-info">
+        <i class="fas fa-eye"></i> Details
+    </a>
+</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+{% else %}
+<div class="alert alert-info">
+<i class="fas fa-info-circle"></i> You haven't attempted any quizzes yet.
+</div>
+{% endif %}
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
+

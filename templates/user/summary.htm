@@ -1,0 +1,97 @@
+{% extends 'ubase.htm' %}
+
+{% block title %}User Summary{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2 class="mb-4">User Summary</h2>
+    
+    <!-- Subject Summary Table -->
+    <div class="card mb-4">
+        <div class="card-header">Subject Summary</div>
+        <div class="card-body">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Subject</th>
+                        <th>Attempts</th>
+                        <th>Average Score</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for subject in subject_summary %}
+                    <tr>
+                        <td>{{ subject.subject }}</td>
+                        <td>{{ subject.attempts }}</td>
+                        <td>{{ "%.2f"|format(subject.avg_score) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- Monthly Performance Chart -->
+    <div class="card mb-4">
+        <div class="card-header">Monthly Performance</div>
+        <div class="card-body">
+            <canvas id="monthlyChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="card mb-4">
+        <div class="card-header">Recent Activity</div>
+        <div class="card-body">
+            <ul class="list-group">
+                {% for activity in recent_activity %}
+                <li class="list-group-item">
+                    <strong>{{ activity.subject_name }} - {{ activity.chapter_name }}</strong><br>
+                    Quiz: {{ activity.quiz.quiz_name }} | Score: {{ activity.score.total_scored }}/{{ activity.question_count }} ({{ "%.2f"|format(activity.percentage) }}%)<br>
+                    <small>Date: {{ activity.score.timestamp_date_of_attempt.strftime('%Y-%m-%d %H:%M') }}</small>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Chart.js for Monthly Performance -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var ctx = document.getElementById('monthlyChart').getContext('2d');
+        var monthData = JSON.parse('{{ month_data|safe }}');
+        var labels = monthData.map(item => item.month);
+        var attempts = monthData.map(item => item.attempts);
+        var avgScores = monthData.map(item => item.avg_score);
+
+        new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Attempts',
+                        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+                        data: attempts,
+                    },
+                    {
+                        label: 'Avg Score',
+                        backgroundColor: 'rgba(255, 99, 132, 0.6)',
+                        data: avgScores,
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

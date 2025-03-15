@@ -1,0 +1,102 @@
+{% extends 'base.htm' %}
+
+{% block title %}Subjects | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2><i class="fas fa-book me-2"></i>Subjects</h2>
+        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+            <i class="fas fa-plus me-2"></i>Add Subject
+        </button>
+    </div>
+    
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold">All Subjects</h6>
+        </div>
+        <div class="card-body">
+            {% if subjects %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="subjectsTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Description</th>
+                            <th>Chapters</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for subject in subjects %}
+                        <tr>
+                            <td>{{ subject.subject_id }}</td>
+                            <td>{{ subject.name }}</td>
+                            <td>{{ subject.description }}</td>
+                            <td>{{ subject.chapters|length }}</td>
+                            <td>
+                                <a href="{{ url_for('chapters', subject_id=subject.subject_id) }}" class="btn btn-sm btn-info" title="View Chapters">
+                                    <i class="fas fa-folder-open"></i>
+                                </a>
+                                <a href="{{ url_for('edit_subject', subject_id=subject.subject_id) }}" class="btn btn-sm btn-warning" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('delete_subject', subject_id=subject.subject_id) }}" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Are you sure you want to delete this subject? This will delete all associated chapters and quizzes.')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="lead">No subjects found</p>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addSubjectModal">
+                    Add Your First Subject
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Add Subject Modal -->
+<div class="modal fade" id="addSubjectModal" tabindex="-1" aria-labelledby="addSubjectModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="addSubjectModalLabel">Add New Subject</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="name" class="form-label">Subject Name</label>
+                        <input type="text" class="form-control" id="name" name="name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea class="form-control" id="description" name="description" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Subject</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Could add DataTables or other JS enhancements here
+    });
+</script>
+{% endblock %}

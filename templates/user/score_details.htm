@@ -1,0 +1,139 @@
+<!-- user/score_details.html -->
+{% extends "ubase.htm" %}
+{% block title %}Score Details{% endblock %}
+
+{% block content %}
+<div class="row">
+<div class="col-12">
+<nav aria-label="breadcrumb">
+<ol class="breadcrumb">
+<li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+<li class="breadcrumb-item"><a href="{{ url_for('scores') }}">Scores</a></li>
+<li class="breadcrumb-item active">Score Details</li>
+</ol>
+</nav>
+</div>
+</div>
+
+<div class="row">
+<div class="col-12">
+<div class="card">
+<div class="card-header bg-primary text-white">
+<h5 class="mb-0">{{ quiz.name }} - Results</h5>
+</div>
+<div class="card-body">
+<div class="row mb-4">
+<div class="col-md-6">
+<h5>Score Information</h5>
+<table class="table">
+<tr>
+<th>Quiz:</th>
+<td>{{ quiz.name }}</td>
+</tr>
+<tr>
+<th>Subject:</th>
+<td>{{ subject.name }}</td>
+</tr>
+<tr>
+<th>Chapter:</th>
+<td>{{ chapter.chapter_name }}</td>
+</tr>
+<tr>
+<th>Date Attempted:</th>
+<td>{{ score.timestamp_date_of_attempt.strftime('%d-%m-%Y') }}</td>
+</tr>
+<tr>
+<th>Time Taken:</th>
+<td>{{ score.time_taken.strftime('%H:%M:%S') }}</td>
+</tr>
+<tr>
+<th>Score:</th>
+<td>{{ score.total_scored }}/{{ questions|length }}</td>
+</tr>
+<tr>
+<th>Percentage:</th>
+<td>{{ "%.1f"|format((score.total_scored / questions|length * 100) if questions|length > 0 else 0) }}%</td>
+</tr>
+<tr>
+<th>Remarks:</th>
+<td>{{ score.remarks or 'No remarks available.' }}</td>
+</tr>
+</table>
+</div>
+<div class="col-md-6">
+<div class="text-center">
+<canvas id="resultChart" width="300" height="300"></canvas>
+</div>
+</div>
+</div>
+
+<!-- Optional: Show question details -->
+<h5 class="mt-4">Question Details</h5>
+<div class="alert alert-info">
+<i class="fas fa-info-circle"></i> Note: This is just the question list. 
+Individual correct/incorrect answers are not shown in this view.
+</div>
+
+<div class="list-group mt-3">
+{% for question in questions %}
+<div class="list-group-item">
+<h6>Question {{ loop.index }}: {{ question.question }}</h6>
+<div class="ml-4">
+<p>1. {{ question.option1 }}</p>
+<p>2. {{ question.option2 }}</p>
+<p>3. {{ question.option3 }}</p>
+<p>4. {{ question.option4 }}</p>
+<p><strong>Answer: Option {{ question.correct_option }}</strong></p>
+</div>
+</div>
+{% endfor %}
+</div>
+</div>
+<div class="card-footer">
+<a href="{{ url_for('scores') }}" class="btn btn-secondary">
+<i class="fas fa-arrow-left"></i> Back to Scores
+</a>
+</div>
+</div>
+</div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Create score visualization
+document.addEventListener('DOMContentLoaded', function() {
+const ctx = document.getElementById('resultChart').getContext('2d');
+
+// Calculate correct and incorrect answers
+const totalQuestions = { questions,length };
+const correctAnswers = { score,total_scored };  
+const incorrectAnswers = totalQuestions - correctAnswers;
+
+const resultChart = new Chart(ctx, {
+type: 'doughnut',
+data: {
+labels: ['Correct', 'Incorrect'],
+datasets: [{
+data: [correctAnswers, incorrectAnswers],
+backgroundColor: ['#28a745', '#dc3545'],
+borderWidth: 1
+}]
+},
+options: {
+responsive: true,
+plugins: {
+legend: {
+position: 'bottom'
+},
+title: {
+display: true,
+text: 'Quiz Result'
+}
+}
+}
+});
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,89 @@
+<!-- user/quiz_details.html -->
+{% extends "ubase.htm" %}
+{% block title %}Quiz Details{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                <li class="breadcrumb-item active">Quiz Details</li>
+            </ol>
+        </nav>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">{{ quiz.name }} Details</h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>Basic Information</h5>
+                        <table class="table">
+                            <tr>
+                                <th>Quiz ID:</th>
+                                <td>{{ quiz.quiz_id }}</td>
+                            </tr>
+                            <tr>
+                                <th>Subject:</th>
+                                <td>{{ subject.name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Chapter:</th>
+                                <td>{{ chapter.chapter_name }}</td>
+                            </tr>
+                            <tr>
+                                <th>Date:</th>
+                                <td>{{ quiz.date_of_quiz.strftime('%d-%m-%Y') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Duration:</th>
+                                <td>{{ quiz.time_duration.strftime('%H:%M:%S') }}</td>
+                            </tr>
+                            <tr>
+                                <th>Questions:</th>
+                                <td>{{ question_count }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Description</h5>
+                        <p>{{ chapter.description or 'No description available.' }}</p>
+                        
+                        <h5 class="mt-4">Remarks</h5>
+                        <p>{{ quiz.remarks or 'No remarks available.' }}</p>
+                        
+                        {% if previous_attempt %}
+                        <div class="alert alert-warning">
+                            <i class="fas fa-exclamation-triangle"></i> You have already attempted this quiz on 
+                            {{ previous_attempt.timestamp_date_of_attempt.strftime('%d-%m-%Y') }}.
+                            Score: {{ previous_attempt.total_scored }}/{{ question_count }}
+                        </div>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> You haven't attempted this quiz yet.
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <a href="{{ url_for('dashboard') }}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back
+                </a>
+                {% if not previous_attempt %}
+                <a href="{{ url_for('start_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-success float-end">
+                    <i class="fas fa-play"></i> Start Quiz
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

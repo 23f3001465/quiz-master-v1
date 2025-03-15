@@ -1,0 +1,142 @@
+{% extends "ubase.htm" %}
+{% block title %}Quiz{% endblock %}
+
+{% block content %}
+<div class=" container">
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">
+                    {{ quiz.name if quiz else "Quiz" }} 
+                    (Question {{ (current_question + 1) if current_question is not none else 1 }}/{{ total_questions if total_questions else "?" }})
+                </h5>
+                <div class="timer" id="timer">00:00:00</div>
+            </div>
+            {% set progress_percentage = (100 * (current_question + 1) / total_questions) if total_questions and total_questions > 0 else 0 %}
+{% set progress_now = (current_question + 1) if current_question is not none else 0 %}
+{% set progress_max = total_questions if total_questions else 1 %}
+
+<div class="card-body">
+    <!-- Progress Bar -->
+    {% set progress_percentage = (100 * (current_question + 1) / total_questions) if total_questions and total_questions > 0 else 0 %}
+    {% set progress_now = (current_question + 1) if current_question is not none else 0 %}
+    {% set progress_max = total_questions if total_questions else 1 %}
+
+    <div class="progress progress-container">
+        <div id="progress-bar" style="width: 0%;"></div>
+<script>
+    document.getElementById('progress-bar').style.width = "{{ progress_percentage | default(0) | int }}%" ;
+</script>
+
+        <div class="progress-bar" role="progressbar"
+             aria-valuenow="{{ progress_now }}" 
+             aria-valuemin="0" 
+             aria-valuemax="{{ progress_max }}">
+        </div>
+        
+        
+    </div>
+</div>
+
+
+
+                {% if questions and current_question is not none and current_question < questions|length %}
+                <form id="quizForm" action="{{ url_for('save_answer', quiz_id=quiz.quiz_id) if quiz else '#' }}" method="POST">
+                    <input type="hidden" name="question_id" value="{{ questions[current_question].question_id }}">
+                    <input type="hidden" name="current_question" value="{{ current_question }}">
+                    <input type="hidden" name="total_questions" value="{{ total_questions if total_questions else 0 }}">
+                    
+                    <h5>Question {{ current_question + 1 }}:</h5>
+                    <div class="mb-4">
+                        <p class="lead">{{ questions[current_question].question }}</p>
+                    </div>
+
+                    <div class="options">
+                        {% for i in range(1, 5) %}
+                        <div class="mb-2">
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="answer" id="option{{ i }}" value="{{ i }}"
+                                    {% if answers.get(questions[current_question].question_id|string) == i|string %} checked {% endif %}>
+                                <label class="form-check-label" for="option{{ i }}">
+                                    {{ questions[current_question]['option' ~ i] }}
+                                </label>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <div class="d-flex justify-content-between mt-4">
+                        {% if current_question > 0 %}
+                        <a href="{{ url_for('display_question', quiz_id=quiz.quiz_id, question_number=current_question-1) }}" class="btn btn-secondary">
+                            <i class="fas fa-arrow-left"></i> Previous
+                        </a>
+                        {% else %}
+                        <div></div>
+                        {% endif %}
+
+                        <div>
+                            {% if current_question < total_questions - 1 %}
+                            <button type="submit" class="btn btn-primary">
+                                Save & Next <i class="fas fa-arrow-right"></i>
+                            </button>
+                            {% else %}
+                            <button type="submit" formaction="{{ url_for('submit_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-success">
+                                Submit Quiz <i class="fas fa-check"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </form>
+                {% else %}
+                <div class="alert alert-warning">
+                    No questions found for this quiz.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h4>Quizzes for {{ chapter.name }}</h4>
+        <a href="{{ url_for('add_quiz') }}" class="btn btn-primary">
+            + New Quiz
+        </a>
+    </div>
+    
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // Find all radio buttons (answer choices)
+        document.querySelectorAll("input[type=radio]").forEach((radio) => {
+            radio.addEventListener("change", function() {
+                let questionId = this.name;  // The question's ID
+                let selectedOption = this.value;  // The chosen answer
+                
+                // Store the answer in session via AJAX request
+                fetch('/save_answer', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ question_id: questionId, answer: selectedOption })
+                });
+            });
+        });
+    
+        // Delay form submission to ensure the last answer is saved
+        document.querySelectorAll("button[type=submit]").forEach((button) => {
+            button.addEventListener("click", function(event) {
+                event.preventDefault();  // Stop form from submitting immediately
+    
+                setTimeout(() => {
+                    this.closest("form").submit();  // Submit the form after a short delay
+                }, 500);  // 500ms delay to ensure last answer is saved
+            });
+        });
+    });
+    </script>
+    
+{% endblock %}

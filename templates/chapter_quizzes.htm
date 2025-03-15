@@ -1,0 +1,100 @@
+{% extends 'base.htm' %}
+
+{% block title %}Quizzes for {{ chapter.chapter_name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row mb-4">
+        <div class="col">
+            <h2>Quizzes for {{ chapter.chapter_name }}</h2>
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{{ url_for('dashboard') }}">Dashboard</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('subjects') }}">Subjects</a></li>
+                    <li class="breadcrumb-item"><a href="{{ url_for('chapters', subject_id=chapter.subject_id) }}">{{ chapter.subject.name }}</a></li>
+                    <li class="breadcrumb-item active">{{ chapter.chapter_name }}</li>
+                </ol>
+            </nav>
+        </div>
+    </div>
+
+    <div class="row mb-4">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Add New Quiz</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST">
+                        <div class="form-group mb-3">
+                            <label for="name">Quiz Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="date_of_quiz">Date of Quiz</label>
+                            <input type="date" class="form-control" id="date_of_quiz" name="date_of_quiz" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="time_duration">Time Duration (HH:MM)</label>
+                            <input type="time" class="form-control" id="time_duration" name="time_duration" required>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="remarks">Remarks</label>
+                            <textarea class="form-control" id="remarks" name="remarks" rows="2"></textarea>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">Add Quiz</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Quizzes</h5>
+                </div>
+                <div class="card-body">
+                    {% if quizzes %}
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Date</th>
+                                    <th>Duration</th>
+                                    <th>Questions</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for quiz in quizzes %}
+                                <tr>
+                                    <td>{{ quiz.name }}</td>
+                                    <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</td>
+                                    <td>{{ quiz.time_duration.strftime('%H:%M') }}</td>
+                                    <td>{{ quiz.questions|length }}</td>
+                                    <td>
+                                        <a href="{{ url_for('questions', quiz_id=quiz.quiz_id) }}" class="btn btn-sm btn-info">Questions</a>
+                                        <a href="{{ url_for('edit_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-sm btn-warning">Edit</a>
+                                        <a href="{{ url_for('delete_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-sm btn-danger" onclick="return confirm('Are you sure you want to delete this quiz?')">Delete</a>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% else %}
+                    <p class="text-muted">No quizzes found for this chapter. Add one using the form above.</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

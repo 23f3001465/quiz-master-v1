@@ -1,0 +1,73 @@
+{% extends 'base.htm' %}
+
+{% block title %}All Quizzes | Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="container-fluid">
+    <h2 class="mb-4"><i class="fas fa-question-circle me-2"></i>All Quizzes</h2>
+    <div class="d-flex justify-content-center mb-3">
+        <a href="{{ url_for('add_quiz') }}" class="btn btn-primary">
+            + New Quiz
+        </a>
+    </div>
+    <div class="card shadow mb-4">
+        <div class="card-header py-3">
+            <h6 class="m-0 font-weight-bold">Quiz List</h6>
+        </div>
+       
+        
+        
+        <div class="card-body">
+            {% if quizzes %}
+            <div class="table-responsive">
+                <table class="table table-bordered" id="quizzesTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Quiz Name</th>
+                            <th>Chapter</th>
+                            <th>Subject</th>
+                            <th>Date</th>
+                            <th>Duration</th>
+                            <th>Questions</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for quiz in quizzes %}
+                        <tr>
+                            <td>{{ quiz.quiz_id }}</td>
+                            <td>{{ quiz.name }}</td>
+                            <td>{{ quiz.chapter.chapter_name }}</td>
+                            <td>{{ quiz.chapter.subject.name }}</td>
+                            <td>{{ quiz.date_of_quiz.strftime('%Y-%m-%d') }}</td>
+                            <td>{{ quiz.time_duration.strftime('%H:%M') }}</td>
+                            <td>{{ quiz.questions|length }}</td>
+                            <td>
+                                <a href="{{ url_for('questions', quiz_id=quiz.quiz_id) }}" class="btn btn-sm btn-info" title="View Questions">
+                                    <i class="fas fa-list"></i>
+                                </a>
+                                <a href="{{ url_for('edit_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-sm btn-warning" title="Edit Quiz">
+                                    <i class="fas fa-edit"></i>
+                                </a>
+                                <a href="{{ url_for('delete_quiz', quiz_id=quiz.quiz_id) }}" class="btn btn-sm btn-danger" 
+                                   onclick="return confirm('Are you sure you want to delete this quiz?')" title="Delete Quiz">
+                                    <i class="fas fa-trash"></i>
+                                </a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="text-center py-4">
+                <p class="lead">No quizzes found</p>
+                <p>Create a quiz in a specific chapter</p>
+                <a href="{{ url_for('subjects') }}" class="btn btn-primary">Go to Subjects</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
