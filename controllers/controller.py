@@ -628,5 +628,116 @@ def scores():
     
     return render_template('user/scores.htm', scores=score_data)
 
+@app.route('/score/<int:score_id>')
+@login_required
+def score_details(score_id):
+    score = Scores.query.get_or_404(score_id)
+    
+    if score.user_id != current_user().user_id:
+        flash('Access denied!', 'danger')
+        return redirect(url_for('dashboard'))
+    
+    quiz = Quiz.query.get(score.quiz_id)
+    questions = Question.query.filter_by(quiz_id=score.quiz_id).all()
+    
+    return render_template('user/score_details.htm', 
+                          score=score,
+                          quiz=quiz,
+                          questions=questions,
+                          chapter=quiz.chapter,
+                          subject=quiz.chapter.subject)
+
+@app.route('/user_summary')
+@login_required
+def user_summary():
+    subject_summary = db.session.query(
+        Subject.name.label('subject'),
+        func.count(Scores.score_id).label('attempts'),
+        func.avg(Scores.total_scored).label('avg_score')
+    ).join(Chapter).join(Quiz).join(Scores) \
+     .filter(Scores.user_id == current_user().user_id) \
+     .group_by(Subject.subject_id).all()
+    
+    current_year = datetime.now().year
+    month_summary = db.session.query(
+        extract('month', Scores.timestamp_date_of_attempt).label('month'),
+        func.count(Scores.score_id).label('attempts'),
+        func.avg(Scores.total_scored).label('avg_score')
+    ).filter(
+        Scores.user_id == current_user().user_id,
+        extract('year', Scores.timestamp_date_of_attempt) == current_year
+    ).group_by(extract('month', Scores.timestamp_date_of_attempt)).all()
+    
+    months = ['January', 'February', 'March', 'April', 'May', 'June', 
+              'July', 'August', 'September', 'October', 'November', 'December']
+    month_data = []
+    for month_num in range(1, 13):
+        month_item = next((item for item in month_summary if item.month == month_num), None)
+        if month_item:
+            month_data.append({
+                'month': months[month_num-1],
+                'attempts': month_item.attempts,
+                'avg_score': round(month_item.avg_score, 2)
+            })
+        else:
+            month_data.append({
+                'month': months[month_num-1],
+                'attempts': 0,
+                'avg_score': 0
+            })
+    
+    recent_scores = Scores.query.filter_by(user_id=current_user().user_id) \
+                         .order_by(Scores.timestamp_date_of_attempt.desc()) \
+                         .limit(5).all()
+    
+    recent_activity = []
+    for score in recent_scores:
+        quiz = Quiz.query.get(score.quiz_id)
+        question_count = Question.query.filter_by(quiz_id=score.quiz_id).count()
+        
+        recent_activity.append({
+            'score': score,
+            'quiz': quiz,
+            'chapter_name': quiz.chapter.chapter_name,
+            'subject_name': quiz.chapter.subject.name,
+            'question_count': question_count,
+            'percentage': (score.total_scored / question_count) * 100 if question_count > 0 else 0
+        })
+    
+    return render_template('user/summary.htm', 
+                          subject_summary=subject_summary,
+                          month_data=json.dumps(month_data),
+                          recent_activity=recent_activity)
+
+@app.route('/profile')
+@login_required
+def profile():
+    return render_template('user/profile.htm')
+
+@app.route('/user_search')
+@login_required
+def user_search():
+    query = request.args.get('q', '')
+    if not query:
+        return redirect(url_for('dashboard'))
+    
+    quizzes = Quiz.query.filter(Quiz.name.ilike(f'%{query}%')).all()
+    
+    subjects = Subject.query.filter(Subject.name.ilike(f'%{query}%')).all()
+    
+    chapters = Chapter.query.filter(Chapter.chapter_name.ilike(f'%{query}%')).all()
+    
+    return render_template('user/search_results.htm', 
+                          query=query,
+                          quizzes=quizzes,
+                          subjects=subjects,
+                          chapters=chapters)
+
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
+
 
 
